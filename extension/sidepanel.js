@@ -31,6 +31,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
+  const renderResult = (data) => {
+    timeVal.textContent = `${data.readingTime} min read`;
+    insightContent.textContent = data.insight;
+    summaryList.innerHTML = '';
+    data.summary.forEach(point => {
+      const li = document.createElement('li');
+      li.textContent = point;
+      summaryList.appendChild(li);
+    });
+    showState('result');
+  };
+
   const extractPageText = () => {
     // Basic extraction, removes scripts and styles text
     const clone = document.body.cloneNode(true);
@@ -51,8 +63,16 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       // Check if it's a restricted URL (chrome://, edge://, etc)
-      if (tab.url.startsWith('chrome://') || tab.url.startsWith('edge://')) {
+      const url = tab.url || '';
+      if (url.startsWith('chrome://') || url.startsWith('edge://') || url === '') {
         throw new Error('Cannot summarize browser internal pages.');
+      }
+
+      // Check Cache first
+      const cachedData = await chrome.storage.local.get(url);
+      if (cachedData[url]) {
+        renderResult(cachedData[url]);
+        return;
       }
 
       // Extract text from the page
@@ -79,18 +99,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const data = response.data;
 
+      // Save to Cache
+      await chrome.storage.local.set({ [url]: data });
+
       // Update UI
-      timeVal.textContent = `${data.readingTime} min read`;
-      insightContent.textContent = data.insight;
-
-      summaryList.innerHTML = '';
-      data.summary.forEach(point => {
-        const li = document.createElement('li');
-        li.textContent = point;
-        summaryList.appendChild(li);
-      });
-
-      showState('result');
+      renderResult(data);
 
     } catch (err) {
       console.error('Summarization error:', err);
@@ -101,7 +114,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
   summarizeBtn.addEventListener('click', handleSummarize);
   retryBtn.addEventListener('click', () => showState('initial'));
+  
   if (clearBtn) {
-    clearBtn.addEventListener('click', () => showState('initial'));
+    clearBtn.addEventListener('click', async () => {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      if (tab && tab.url) {
+        await chrome.storage.local.remove(tab.url);
+      }
+      showState('initial');
+    });
   }
+
+  // Initial Check on Load
+  (async () => {
+    try {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      if (tab && tab.url) {
+        const cachedData = await chrome.storage.local.get(tab.url);
+        if (cachedData[tab.url]) {
+          renderResult(cachedData[tab.url]);
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to check initial cache', e);
+    }
+  })();
 });

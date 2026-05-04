@@ -2,10 +2,10 @@
   --primary: #6366f1;
   --primary-hover: #4f46e5;
   --bg-color: #0f172a;
-  --card-bg: rgba(30, 41, 59, 0.7);
+  --card-bg: rgba(30, 41, 59, 0.8);
   --text-main: #f8fafc;
-  --text-muted: #94a3b8;
-  --border: rgba(255, 255, 255, 0.1);
+  --text-muted: #cbd5e1;
+  --border: rgba(255, 255, 255, 0.15);
   --success: #10b981;
   --error: #ef4444;
   --glow: rgba(99, 102, 241, 0.5);
@@ -16,7 +16,7 @@
     --bg-color: #f8fafc;
     --card-bg: #ffffff;
     --text-main: #0f172a;
-    --text-muted: #64748b;
+    --text-muted: #334155;
     --border: #e2e8f0;
     --glow: rgba(99, 102, 241, 0.3);
   }

@@ -60,7 +60,7 @@ export async function POST(req) {
             },
             readingTime: {
               type: SchemaType.INTEGER,
-              description: "Estimated reading time of the original full text in minutes. (Assuming 200 words/min)"
+              description: "Estimated reading time of the generated summary in minutes. (Assuming 200 words/min)"
             }
           },
           required: ["summary", "insight", "readingTime"]
