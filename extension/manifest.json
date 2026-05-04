@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "Insighta: AI Web Summarizer",
+  "version": "1.0.0",
+  "description": "Extract insights and summaries from any web page using AI.",
+  "permissions": [
+    "sidePanel",
+    "scripting",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Click to summarize page"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  }
+}

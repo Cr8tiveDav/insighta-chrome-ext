@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Insighta</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="sidepanel.css">
+</head>
+<body>
+  <div class="app-container">
+    <header class="header">
+      <div class="logo-container">
+        <div class="logo-icon">✦</div>
+        <h1>Insighta</h1>
+      </div>
+      <p class="subtitle">AI-Powered Web Summaries</p>
+    </header>
+
+    <main class="content">
+      <button id="summarize-btn" class="primary-btn">
+        <span class="btn-text">Summarize this page</span>
+        <div class="btn-glow"></div>
+      </button>
+
+      <div id="loading-state" class="state-container hidden">
+        <div class="spinner"></div>
+        <p>Analyzing page content...</p>
+        <div class="progress-bar">
+          <div class="progress-fill"></div>
+        </div>
+      </div>
+
+      <div id="error-state" class="state-container hidden">
+        <div class="error-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        </div>
+        <p id="error-text">Failed to summarize the page.</p>
+        <button id="retry-btn" class="secondary-btn">Retry</button>
+      </div>
+
+      <div id="result-state" class="result-container hidden">
+        <div class="result-header">
+          <span class="reading-time">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            <span id="time-val">5 min read</span>
+          </span>
+          <span class="badge">AI Generated</span>
+        </div>
+
+        <div class="card insight-card">
+          <div class="card-header">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+            <h3>Key Insight</h3>
+          </div>
+          <p id="insight-content"></p>
+        </div>
+
+        <div class="card summary-section">
+          <div class="card-header">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+            <h3>Summary</h3>
+          </div>
+          <ul id="summary-list">
+          </ul>
+        </div>
+        
+        <button id="clear-btn" class="secondary-btn" style="width: 100%;">Summarize Another Page</button>
+      </div>
+    </main>
+  </div>
+
+  <script src="sidepanel.js"></script>
+</body>
+</html>
