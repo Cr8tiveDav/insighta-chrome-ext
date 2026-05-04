@@ -1,57 +1,74 @@
 # Insighta: AI Web Summarizer
 
-Insighta is a Chrome Extension that leverages Gemini AI to instantly extract, analyze, and summarize any readable webpage you visit. It provides a clean, modern side panel UI with reading time estimations, key insights, and bulleted summaries.
+Insighta is a Chrome Extension that leverages Google Gemini AI to instantly extract, analyze, and summarize web content. It provides a modern side panel interface featuring reading time estimations, key insights, and structured bulleted summaries.
 
-The project is built using a secure client-server architecture:
-1. **Chrome Extension (Client):** A Manifest V3 extension built with Vanilla JS, HTML, and CSS that handles text extraction and UI presentation via a Side Panel.
-2. **Next.js Proxy (Server):** A Next.js API route that securely holds the Gemini AI API keys and communicates with the AI models to process the extracted text.
+## Installation and Setup
 
----
+Follow these steps to set up the extension and its mandatory local proxy server.
 
-## Installation Guide
+### 1. Setup the API Proxy (Backend)
+The extension requires a local proxy server to securely communicate with the Gemini AI API without exposing your API keys.
 
-Because this extension uses an external API proxy, you must run the local proxy server before installing the extension into your browser.
+1.  Navigate into the `api-proxy` directory:
+    ```bash
+    cd api-proxy
+    ```
+2.  Install dependencies:
+    ```bash
+    npm install
+    ```
+3.  Create a file named `.env.local` in the `api-proxy` directory and add your Google Gemini API key:
+    ```env
+    AI_API_KEY=your_gemini_api_key_here
+    ```
+4.  Start the local development server:
+    ```bash
+    npm run dev
+    ```
+    The server will now be running at `http://localhost:3000` or `http://localhost:3001` if the former is in use.
 
-### Step 1: Set up the API Proxy
-1. Clone this repository to your local machine.
-2. Open your terminal and navigate into the `api-proxy` directory:
-   ```bash
-   cd api-proxy
-   ```
-3. Install the required dependencies:
-   ```bash
-   npm install
-   ```
-4. Create a `.env.local` file inside the `api-proxy` directory and add your Google Gemini API key:
-   ```env
-   AI_API_KEY=your_gemini_api_key_here
-   ```
-5. Start the Next.js proxy server:
-   ```bash
-   npm run dev
-   ```
-   *The server should now be running on `http://localhost:3000` (or `3001` depending on port availability).*
+### 2. Install the Chrome Extension
+1.  Open Google Chrome and navigate to `chrome://extensions/`.
+2.  Enable **Developer mode** using the toggle in the top-right corner.
+3.  Click **Load unpacked** in the top-left corner.
+4.  Select the `extension` directory from this repository.
 
-### Step 2: Install the Chrome Extension locally
-This extension is designed to run locally and is not hosted on the Chrome Web Store. To install it:
+### 3. Usage
+1.  Navigate to any readable webpage (such as a news article or blog post).
+2.  Click the **Extensions** (puzzle piece) icon in your toolbar and select **Insighta**.
+3.  Click **Summarize Page** to generate insights.
 
-1. Open Google Chrome.
-2. Type `chrome://extensions/` into the URL bar and press Enter.
-3. In the top right corner, toggle on **Developer mode**.
-4. In the top left corner, click the **Load unpacked** button.
-5. In the file picker, navigate to this project's folder and select the `extension` directory.
-6. The Insighta extension will now appear in your list of installed extensions!
+## Project Architecture
 
-### Step 3: Use the Extension
-1. Navigate to any article, blog post, or readable website (e.g., Wikipedia).
-2. Click the **Extensions puzzle piece icon** in the top right of your browser toolbar.
-3. Click the **Insighta** icon to open the Side Panel.
-4. Click the **"Summarize this page"** button and wait a few seconds for the AI to generate your insights!
+The application follows a secure client-server model:
 
----
+1.  **Chrome Extension (Frontend):**
+    *   **Manifest V3:** Adheres to the latest Chrome extension standards.
+    *   **Content Scripting:** Dynamically extracts readable text using heuristic filtering to ignore navigation and footers.
+    *   **Background Service Worker:** Orchestrates communication between the UI and the proxy server.
+    *   **Storage API:** Utilizes `chrome.storage.local` to implement a persistent caching layer. Before any network request is initiated, the extension checks if a summary for the current URL already exists in local storage. If found, the cached data is retrieved and displayed instantly, completely bypassing the API call. This significantly reduces latency and prevents redundant processing costs.
 
-## Architecture & Data Flow
+2.  **API Proxy (Backend):**
+    *   **Next.js API Routes:** Securely holds the API keys and manages requests.
+    *   **Data Minimization:** Truncates input text to 10,000 characters for efficiency.
+    *   **Schema Enforcement:** Uses JSON schema validation to ensure the AI returns structured data.
 
-- **sidepanel.js**: Triggers a content script to scrape the active page's readable text, ignoring navigation and footer elements. It then uses `chrome.runtime.sendMessage` to pass the text to the background script.
-- **background.js**: Acts as the orchestrator. It receives the text, makes an asynchronous `POST` request to the local Next.js proxy, and passes the generated JSON summary back to the side panel.
-- **route.js (API Proxy)**: Receives the payload, enforces data minimization (limits text to 10k characters), and queries the `gemini-2.5-flash` model, enforcing a strict JSON schema for the response.
+## AI Integration Details
+
+The extension utilizes the Gemini 1.5 Flash model through the `@google/generative-ai` SDK. The integration uses a structured prompt that instructs the AI to return a specific JSON object containing a bulleted summary, a single-sentence insight, and an estimated reading time based on a standard rate of 200 words per minute.
+
+## Security Decisions
+
+1.  **Proxy Server Architecture:** API keys are never stored within the extension source code or the browser. All AI requests are proxied through the local Next.js server where keys are kept as secure environment variables.
+2.  **Data Minimization:** The extension only extracts inner text and further truncates it before transmission, ensuring minimal data exposure.
+3.  **Sanitized Rendering:** The UI uses `textContent` and `innerText` for rendering AI content to prevent Cross-Site Scripting (XSS) attacks.
+
+## Trade-offs and Technical Decisions
+
+1.  **Vanilla JS vs. Frameworks:** We used vanilla JavaScript to keep the extension lightweight and high-performing.
+2.  **Heuristic Scraping:** We implemented a custom heuristic scraper (filtering `nav`, `footer`, etc.) rather than a heavy library to keep the extension small while maintaining high accuracy for articles.
+3.  **Side Panel vs. Popup:** The `sidePanel` API was chosen over a popup so users can view summaries while continuing to read the original page.
+4.  **Local Storage Caching:** We implemented a per-URL cache to save bandwidth and API costs for frequently visited pages.
+
+## Remote Deployment (Optional)
+This project is also configured for deployment on Vercel. To deploy, set the Root Directory to `api-proxy` and add the `AI_API_KEY` as an environment variable in the Vercel dashboard.
