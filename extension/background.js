@@ -1,17 +1,18 @@
 chrome.runtime.onInstalled.addListener(() => {
   // Configures the side panel to open when the extension icon is clicked
-  chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true })
+  chrome.sidePanel
+    .setPanelBehavior({ openPanelOnActionClick: true })
     .catch((error) => console.error(error));
 });
 
-const API_URL = 'http://localhost:3000/api/summarize';
+const API_URL = 'https://insighta-chrome-ext.vercel.app/api/summarize';
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'summarize') {
     // Return true to indicate we will send a response asynchronously
     handleSummarizeRequest(message.text)
-      .then(data => sendResponse({ success: true, data }))
-      .catch(error => sendResponse({ success: false, error: error.message }));
+      .then((data) => sendResponse({ success: true, data }))
+      .catch((error) => sendResponse({ success: false, error: error.message }));
     return true;
   }
 });
@@ -22,7 +23,7 @@ async function handleSummarizeRequest(text) {
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ text })
+    body: JSON.stringify({ text }),
   });
 
   if (!response.ok) {
